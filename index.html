@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kichik Yurak</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: #000;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Ekran o‘lchamlarini yangilash
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Vector class
+class Vector {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  add(v) {
+    return new Vector(this.x + v.x, this.y + v.y);
+  }
+
+  subtract(v) {
+    return new Vector(this.x - v.x, this.y - v.y);
+  }
+
+  scale(s) {
+    return new Vector(this.x * s, this.y * s);
+  }
+}
+
+let origin = new Vector(canvas.width / 2, canvas.height / 2);
+let mouse = origin;
+
+document.addEventListener('mousemove', e => {
+  mouse = new Vector(e.clientX, e.clientY);
+});
+
+// Polar koordinatalar
+function polar(rad, time) {
+  rad += Math.sin(time / 100);
+  let x = 16 * Math.pow(Math.sin(rad), 3);
+  let y = 13 * Math.cos(rad) - 5 * Math.cos(2 * rad) - 2 * Math.cos(3 * rad) - Math.cos(4 * rad);
+  let scale = 5 + Math.sin(time / 10) * 2;  // Kichikroq qilindi
+
+  return new Vector(x * scale, -y * scale)
+    .add(origin.add(mouse.subtract(origin).scale(0.3)));
+}
+
+function draw(time) {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "red";
+
+  for (let i = 0; i < Math.PI * 2; i += 0.1) {
+    const pos = polar(i, time);
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 1.5, 0, Math.PI * 2); // Kichik radius
+    ctx.fill();
+  }
+
+  requestAnimationFrame(draw);
+}
+
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
